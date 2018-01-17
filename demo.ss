@@ -1,0 +1,12 @@
+(load "socket.ss")
+
+(display (get-thread-id) )
+(newline)
+(let ([pid (fork)])
+    (display pid)
+    (newline)
+    (display (get-thread-id))
+    (newline)
+    )
+(display (get-thread-id) )
+(newline)
