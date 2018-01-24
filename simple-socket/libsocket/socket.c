@@ -52,8 +52,7 @@ size_t _strlen(const char *s)
   return strlen(s);
 }
 
-ssize_t
-_read(int fildes, void *buf, size_t nbyte)
+ssize_t _read(int fildes, void *buf, size_t nbyte)
 {
 //printf("read=>%c nbyte=%d\n",*(char*)buf,nbyte);
 #ifdef WIN32
@@ -63,8 +62,7 @@ _read(int fildes, void *buf, size_t nbyte)
 #endif
 }
 
-ssize_t
-_write_all(int fd, const char *buf, size_t nbyte)
+ssize_t _write_all(int fd, const char *buf, size_t nbyte)
 {
 
   ssize_t i, m;
@@ -98,8 +96,7 @@ _write_all(int fd, const char *buf, size_t nbyte)
   //return write(fildes,buf,nbyte);
 }
 
-ssize_t
-_write(int fd, const char *buf, size_t nbyte)
+ssize_t _write(int fd, const char *buf, size_t nbyte)
 {
 
   ssize_t i, m;
@@ -141,45 +138,54 @@ int _accept(int socket, struct sockaddr *address,
 {
   return accept(socket, address, address_len);
 }
+
 int _bind(int socket, const struct sockaddr *address,
           socklen_t address_len)
 {
   return bind(socket, address, address_len);
 }
+
 int _connect(int socket, const struct sockaddr *address,
              socklen_t address_len)
 {
   return connect(socket, address, address_len);
 }
+
 int _getpeername(int socket, struct sockaddr *address,
                  socklen_t *address_len)
 {
   return getpeername(socket, address, address_len);
 }
+
 int _getsockname(int socket, struct sockaddr *address,
                  socklen_t *address_len)
 {
   return getsockname(socket, address, address_len);
 }
+
 int _getsockopt(int socket, int level, int option_name,
                 void *option_value, socklen_t *option_len)
 {
   return getsockopt(socket, level, option_name, option_value, option_len);
 }
+
 int _listen(int socket, int backlog)
 {
   return listen(socket, backlog);
 }
+
 ssize_t _recv(int socket, void *buffer, size_t length, int flags)
 {
   return recv(socket, buffer, length, flags);
 }
+
 ssize_t _recvfrom(int socket, void *buffer, size_t length,
                   int flags, struct sockaddr *address, socklen_t *address_len)
 {
   return recvfrom(socket, buffer, length,
                   flags, address, address_len);
 }
+
 ssize_t _recvmsg(int socket, struct msghdr *message, int flags)
 {
 #ifdef WIN32
@@ -188,10 +194,12 @@ ssize_t _recvmsg(int socket, struct msghdr *message, int flags)
   return recvmsg(socket, message, flags);
 #endif
 }
+
 ssize_t _send(int socket, const void *message, size_t length, int flags)
 {
   return send(socket, message, length, flags);
 }
+
 ssize_t _sendmsg(int socket, const struct msghdr *message, int flags)
 {
 #ifdef WIN32
@@ -199,18 +207,21 @@ ssize_t _sendmsg(int socket, const struct msghdr *message, int flags)
   return sendmsg(socket, message, flags);
 #endif
 }
+
 ssize_t _sendto(int socket, const void *message, size_t length, int flags,
                 const struct sockaddr *dest_addr, socklen_t dest_len)
 {
   return sendto(socket, message, length, flags,
                 dest_addr, dest_len);
 }
+
 int _setsockopt(int socket, int level, int option_name,
                 const void *option_value, socklen_t option_len)
 {
   return setsockopt(socket, level, option_name,
                     option_value, option_len);
 }
+
 int _shutdown(int socket, int how)
 {
 #ifdef WIN32
@@ -218,6 +229,7 @@ int _shutdown(int socket, int how)
 #endif
   return shutdown(socket, how);
 }
+
 int _socket(int domain, int type, int protocol)
 {
 #ifdef WIN32
@@ -230,6 +242,7 @@ int _socket(int domain, int type, int protocol)
 #endif
   return socket(domain, type, protocol);
 }
+
 int _socketpair(int domain, int type, int protocol,
                 int socket_vector[2])
 {

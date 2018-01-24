@@ -5,8 +5,8 @@
 ##########################################################
 
 
-TARGET = csocket.so
-OBJS = csocket.o
+TARGET = libsocket.so
+OBJS = socket.o
 PLATFORM=
 BITS =$(shell getconf LONG_BIT)
 
@@ -44,19 +44,24 @@ ifeq ($(UNAME_S), Darwin) #APPLE
 #	CXXFLAGS += -D__APPLE__
 endif
 
-ifeq ($(UNAME_S), MINGW32_NT-6.1)
+ifeq (NT, $(findstring NT,$(UNAME_S)))
    	ECHO_MESSAGE = "Windows"
 	LIBS +=  -lws2_32 -lwsock32 
 	CXXFLAGS += 
 	CXXFLAGS += 
 	CFLAGS += 
-	PLATFORM=i3nt
+	ifeq ($(BITS), 32)
+		PLATFORM=i3nt
+	else
+		PLATFORM=a6nt
+	endif	
 	TARGET = libsocket.dll
 endif
 
 .c.o:
 	$(CC) $(CFLAGS) -c -o $@ $<
 all: $(TARGET)
+	cp $(TARGET) ../$(TARGET)
 	@echo Build complete for $(ECHO_MESSAGE)
 
 $(TARGET): $(OBJS)
