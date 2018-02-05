@@ -9,6 +9,7 @@
 ("scripts" 
     ("run" . "scheme --script")
     ("build" . "cd simple-socket && cd libsocket && make && make clean")
-    ("repl" . "scheme"))
+    ("repl" . "scheme")
+	("packing". "raven pack simple-socket"))
 ("dependencies")
 ("devDependencies"))

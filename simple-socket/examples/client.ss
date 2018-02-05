@@ -8,6 +8,7 @@
 (let* ([n (c-read socket-fd buff 0 (bytevector-length buff))]
        [bv (make-bytevector n)])
   (bytevector-copy! buff 0 bv 0 n)
-  (printf "client:---~a\n" (utf8->string bv)))
+  (printf "client: ~a\n" (utf8->string bv)))
 
 (close socket-fd)
+(cleanup)

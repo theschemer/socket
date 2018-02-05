@@ -30,7 +30,9 @@
     bind
     connect
     listen
-    accept)
+    accept
+    shutdown
+    cleanup)
   (import (scheme))
 
   (define lib-name
@@ -110,6 +112,12 @@
   (def-function close
     "_close" (int) int)
 
+  (def-function shutdown
+    "_shutdown" (int int) int)
+  
+  (def-function cleanup
+    "_cleanup" () int)
+  
   (def-function c-error
     "get_error" () string)
 )

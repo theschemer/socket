@@ -14,7 +14,6 @@
 #include <string.h>
 #include <errno.h>
 #include <signal.h>
-
 #include <stdio.h>
 
 int _socket(int domain, int type, int protocol)
@@ -113,6 +112,18 @@ int _read(int fd, char *buf, size_t start, size_t n)
 int _close(int fd)
 {
   return close(fd);
+}
+
+int _shutdown(int socket, int how){
+  return shutdown(socket,how);
+}
+
+int _cleanup(){
+  int i = 0;
+  #ifdef WIN32
+    i = WSACleanup();
+  #endif
+  return i;
 }
 
 /* get_error returns the operating system's error status */
