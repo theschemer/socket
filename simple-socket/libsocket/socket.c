@@ -30,19 +30,14 @@ int _socket(int domain, int type, int protocol)
   return socket(domain, type, protocol);
 }
 
-in_addr_t _inet_addr(const char *strptr)
-{
-  return inet_addr(strptr);
-}
-
 int _bind(int socket, int family, char *addr, int port)
 {
   struct sockaddr_in serv_addr;
-  memset(&serv_addr, 0, sizeof(serv_addr));  //每个字节都用0填充
-  serv_addr.sin_family = family;  //使用IPv4地址
-  serv_addr.sin_addr.s_addr = inet_addr(addr);  //具体的IP地址
-  serv_addr.sin_port = htons(port);  //端口
-  return bind(socket, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
+  memset(&serv_addr, 0, sizeof(serv_addr));    //每个字节都用0填充
+  serv_addr.sin_family = family;               //使用IPv4地址
+  serv_addr.sin_addr.s_addr = inet_addr(addr); //具体的IP地址
+  serv_addr.sin_port = htons(port);            //端口
+  return bind(socket, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
 }
 
 int _listen(int socket, int backlog)
@@ -61,18 +56,19 @@ int _accept(int socket)
 int _connect(int socket, int family, char *addr, int port)
 {
   struct sockaddr_in serv_addr;
-  memset(&serv_addr, 0, sizeof(serv_addr));  //每个字节都用0填充
-  serv_addr.sin_family = family;  //使用IPv4地址
-  serv_addr.sin_addr.s_addr = inet_addr(addr);  //具体的IP地址
-  serv_addr.sin_port = htons(port);  //端口
-  return connect(socket, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
+  memset(&serv_addr, 0, sizeof(serv_addr));    //每个字节都用0填充
+  serv_addr.sin_family = family;               //使用IPv4地址
+  serv_addr.sin_addr.s_addr = inet_addr(addr); //具体的IP地址
+  serv_addr.sin_port = htons(port);            //端口
+  return connect(socket, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
 }
 
-int _write(int fd, char *buf, unsigned nbyte)
+int _write(int fd, char *buf, ssize_t start, ssize_t n)
 {
-  unsigned i, m;
-  
-  m = nbyte;
+  ssize_t i, m;
+
+  buf += start;
+  m = n;
   while (m > 0)
   {
 #ifdef WIN32
@@ -91,21 +87,22 @@ int _write(int fd, char *buf, unsigned nbyte)
       buf += i;
     }
   }
-  return nbyte;
+  return n;
 }
 
-int _read(int fd, char *buf, unsigned nbyte)
+/* c_read pushes through interrupts and socket delays */
+int _read(int fd, char *buf, size_t start, size_t n)
 {
   int i;
 
+  buf += start;
   for (;;)
   {
 #ifdef WIN32
-    i = recv(fd, buf, nbyte, 0);
+    i = recv(fd, buf, n, 0);
 #else
-    i = read(fd, buf, nbyte);
+    i = read(fd, buf, n);
 #endif
-    printf("struct _read=%d----%s\n",i, buf);
     if (i >= 0)
       return i;
     if (errno != EAGAIN && errno != EINTR)
