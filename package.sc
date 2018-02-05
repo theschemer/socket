@@ -1,5 +1,5 @@
 (("name" . "simple-socket")
-("version" . "0.1.0")
+("version" . "0.0.1")
 ("description" . "a simple socket library for chez scheme")
 ("keywords")
 ("author" 
