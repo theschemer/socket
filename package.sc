@@ -1,12 +1,14 @@
-(("name" . "")
+(("name" . "simple-socket")
 ("version" . "0.1.0")
-("description" . "")
+("description" . "a simple socket library for chez scheme")
 ("keywords")
 ("author" 
     ("evilbinary" "ch"))
 ("license" . "mit")
-("private" . #t)
+("private" . #f)
 ("scripts" 
-    ("run" . "scheme --script"))
+    ("run" . "scheme --script")
+    ("build" . "cd simple-socket && cd libsocket && make && make clean")
+    ("repl" . "scheme"))
 ("dependencies")
 ("devDependencies"))
