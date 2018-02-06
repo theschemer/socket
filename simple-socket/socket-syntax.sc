@@ -79,10 +79,42 @@
       (check 'cleanup (cleanup))))
   
   (define make-fd-input-port
-    (lambda (fd)
-      (make-input-port (lambda (msg . args) 1) "")))
+    (lambda (socket)
+      (make-input-port 
+        (lambda (msg . args)
+          (record-case (cons msg args)
+            [block-read (p s n) (block-read ip s n)]
+            [char-ready? (p) (char-ready? ip)]
+            [clear-input-port (p) (clear-input-port ip)]
+            [close-port (p) (mark-port-closed! p)]
+            [file-length (p) (file-length ip)]
+            [peek-char (p) (peek-char ip)]
+            [port-name (p) "fd-input-port"]
+            [read-char (p) (read-char ip)]
+            [unread-char (c p) (unread-char c ip)]
+            [write-char (c p) (write-char c op)]
+            [else (assertion-violationf 'fd-input-port
+                    "operation ~s not handled"
+                    msg)]))
+        "")))
   
   (define make-fd-output-port
-    (lambda (fd)
-      (make-output-port (lambda (msg . args) 1) "")))
+    (lambda (socket)
+      (make-input-port 
+        (lambda (msg . args)
+          (record-case (cons msg args)
+            [block-read (p s n) (block-read ip s n)]
+            [char-ready? (p) (char-ready? ip)]
+            [clear-input-port (p) (clear-input-port ip)]
+            [close-port (p) (mark-port-closed! p)]
+            [file-length (p) (file-length ip)]
+            [peek-char (p) (peek-char ip)]
+            [port-name (p) "fd-input-port"]
+            [read-char (p) (read-char ip)]
+            [unread-char (c p) (unread-char c ip)]
+            [write-char (c p) (write-char c op)]
+            [else (assertion-violationf 'two-way-port
+                    "operation ~s not handled"
+                    msg)]))
+        "")))
 )

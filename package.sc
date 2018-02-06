@@ -1,5 +1,5 @@
 (("name" . "simple-socket")
-("version" . "0.0.1")
+("version" . "0.0.2")
 ("description" . "a simple socket library for chez scheme")
 ("keywords")
 ("author" 
@@ -13,4 +13,5 @@
     ("packing" . "raven pack simple-socket"))
 ("dependencies")
 ("devDependencies" 
-    ("slib" . "3.2.5")))
+    ("slib" . "3.2.5")
+    ("scheme-lib" . "0.1.2")))
