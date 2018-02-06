@@ -13,5 +13,4 @@
     ("packing" . "raven pack simple-socket"))
 ("dependencies")
 ("devDependencies" 
-    ("slib" . "3.2.5")
-    ("scheme-lib" . "0.1.2")))
+    ("slib" . "3.2.5")))

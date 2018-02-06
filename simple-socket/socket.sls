@@ -46,9 +46,7 @@
     socket:read
     socket:close
     socket:shutdown
-    socket:cleanup
-    make-fd-input-port
-    make-fd-output-port)
+    socket:cleanup)
   (import 
     (scheme)
     (simple-socket socket-ffi)
