@@ -1,5 +1,7 @@
 (library (simple-socket socket-ffi) 
   (export
+    AF_UNSPEC
+    AF_UNIX
     AF_INET
     SOCK_STREAM     
     SOCK_DGRAM      
@@ -25,6 +27,7 @@
 
     c-read
     c-write
+    c-error
     close
     socket
     bind
@@ -32,7 +35,8 @@
     listen
     accept
     shutdown
-    cleanup)
+    cleanup
+    check)
   (import (scheme))
 
   (define lib-name
@@ -60,7 +64,9 @@
             (lambda x (printf "error: ~a not found in ~a\n" sym lib-name)))))))
 
 
-  (define AF_INET 2 )
+  (define AF_UNSPEC       0)  
+  (define AF_UNIX         1)
+  (define AF_INET         2)
 
   (define SOCK_STREAM      1)
   (define SOCK_DGRAM       2)
@@ -70,14 +76,9 @@
   (define SOCK_PACKET      10)
   (define INADDR_ANY 0)
 
-  (define IPPROTO_IP 0)
-  (define IPPROTO_TCP 6)
-  (define IPPROTO_UDP 22)
-
   (define SOL_SOCKET 0 )
   (define SO_REUSEADDR   #x0004)
   (define SO_REUSEPORT   #x0200)
-
   (define SO_SNDBUF	#x1001)
   (define SO_RCVBUF	#x1002)
   (define SO_SNDLOWAT	#x1003)
@@ -86,6 +87,10 @@
   (define SO_RCVTIMEO	#x1006)
   (define SO_ERROR	#x1007)
   (define SO_TYPE	#x1008)
+  
+  (define IPPROTO_IP 0)
+  (define IPPROTO_TCP 6)
+  (define IPPROTO_UDP 22)
 
 
   (def-function socket
@@ -98,7 +103,7 @@
     "_read" (int u8* size_t size_t) ssize_t)
 
   (def-function c-write
-    "_write" (int u8* size_t ssize_t) ssize_t)
+    "_write" (int u8* ssize_t ssize_t) ssize_t)
     
   (def-function listen
     "_listen" (int int) int)
@@ -120,4 +125,12 @@
   
   (def-function c-error
     "get_error" () string)
+  
+  (define check
+    ; signal an error if status x is negative, using c-error to
+    ; obtain the operating-system's error message
+    (lambda (who x)
+      (if (< x 0)
+          (error who (c-error))
+          x)))
 )

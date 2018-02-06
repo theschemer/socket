@@ -10,6 +10,7 @@
     ("run" . "scheme --script")
     ("build" . "cd simple-socket && cd libsocket && make && make clean")
     ("repl" . "scheme")
-	("packing". "raven pack simple-socket"))
+    ("packing" . "raven pack simple-socket"))
 ("dependencies")
-("devDependencies"))
+("devDependencies" 
+    ("slib" . "3.2.5")))

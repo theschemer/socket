@@ -5,13 +5,13 @@
 (bind socket-fd AF_INET "127.0.0.1" port)
 (listen socket-fd 10)
 (printf "listen on ~a\n" port)
-(define clinet-fd (accept socket-fd))
+(define client-fd (accept socket-fd))
 
 (let* ([s "Hello World!"]
        [bv (string->utf8 s)])
-  (c-write clinet-fd bv 0 (bytevector-length bv)))
+  (c-write client-fd bv 0 (bytevector-length bv)))
 
-(close clinet-fd)
+(close client-fd)
 (close socket-fd)
 (cleanup)
 

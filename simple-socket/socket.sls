@@ -1,5 +1,7 @@
 (library (simple-socket socket)
   (export
+    AF_UNSPEC
+    AF_UNIX
     AF_INET
     SOCK_STREAM     
     SOCK_DGRAM      
@@ -22,17 +24,33 @@
     IPPROTO_IP
     IPPROTO_TCP
     IPPROTO_UDP
-
     c-read
     c-write
+    c-error
     close
     socket
     bind
     connect
     listen
     accept
-  )
+    shutdown
+    cleanup
+    check
+
+    socket:socket
+    socket:bind
+    socket:connect
+    socket:listen
+    socket:accept
+    socket:write
+    socket:read
+    socket:close
+    socket:shutdown
+    socket:cleanup
+    make-fd-input-port
+    make-fd-output-port)
   (import 
     (scheme)
-    (simple-socket socket-ffi))
+    (simple-socket socket-ffi)
+    (simple-socket socket-syntax))
 )
