@@ -40,40 +40,49 @@
       [(_ socket back-log)
         (check 'listen (listen (car socket) back-log))]))
 
- (define-syntax socket:accept
-   (syntax-rules ()
-     [(_ socket)
-        (cons (check 'accept (accept (car socket))) (cdr socket))]))
-
-  (define-syntax socket:write
-    (syntax-rules ()
-      [(_ socket msg)
-        (let ([bv (string->utf8 msg)])
-          (check 'c-write (c-write (car socket) bv 0 (bytevector-length bv))))]))
-
-  (define-syntax socket:read
+  (define-syntax socket:accept
     (syntax-rules ()
       [(_ socket)
-        (socket:read socket 1024)]
-      [(_ socket len)
+        (cons (check 'accept (accept (car socket))) (cdr socket))]))
+
+  (define socket:write
+    (lambda (socket msg)
+      (let ([bv (string->utf8 msg)])
+        (check 'c-write (c-write (car socket) bv 0 (bytevector-length bv))))))
+
+  (define socket:read 
+    (case-lambda
+      ([socket]
+        (socket:read socket 1024))
+      ([socket len]
+        (socket:read socket len ""))
+      ([socket len msg]
         (let* ([buff (make-bytevector len)]
                [n (check 'c-read (c-read (car socket) buff 0 (bytevector-length buff)))]
                [bv (make-bytevector n)])
           (bytevector-copy! buff 0 bv 0 n)
-          (utf8->string bv))]))
+          (cond
+            ([= n 0] msg)
+            ([< n len] (string-append msg (utf8->string bv)))
+            (else (socket:read socket len (string-append msg (utf8->string bv)))))))))
  
-  (define (socket:close socket)
-    (check 'close (close (car socket))))
+  (define socket:close
+    (lambda (socket)
+      (check 'close (close (car socket)))))
   
-  (define (socket:shutdown socket)
-    (check 'shutdown (shutdown (car socket))))
+  (define socket:shutdown
+    (lambda (socket)
+      (check 'shutdown (shutdown (car socket)))))
 
-  (define (socket:cleanup)
-    (check 'cleanup (cleanup)))
+  (define socket:cleanup
+    (lambda ()
+      (check 'cleanup (cleanup))))
   
-  (define (make-fd-input-port fd)
-    (make-input-port (lambda (msg . args) 1) ""))
+  (define make-fd-input-port
+    (lambda (fd)
+      (make-input-port (lambda (msg . args) 1) "")))
   
-  (define (make-fd-output-port fd)
-    (make-output-port (lambda (msg . args) 1) ""))
+  (define make-fd-output-port
+    (lambda (fd)
+      (make-output-port (lambda (msg . args) 1) "")))
 )
