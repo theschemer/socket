@@ -12,5 +12,4 @@
     ("repl" . "scheme")
     ("packing" . "raven pack simple-socket"))
 ("dependencies")
-("devDependencies" 
-    ("slib" . "3.2.5")))
+("devDependencies"))

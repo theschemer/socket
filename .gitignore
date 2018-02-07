@@ -6,5 +6,5 @@
 *.scm#*
 .#*.scm
 
-lib
+
 .vscode

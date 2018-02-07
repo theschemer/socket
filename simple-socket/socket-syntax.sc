@@ -69,8 +69,8 @@
       (check 'close (close (car socket)))))
   
   (define socket:shutdown
-    (lambda (socket)
-      (check 'shutdown (shutdown (car socket)))))
+    (lambda (socket howto)
+      (check 'shutdown (shutdown (car socket) howto))))
 
   (define socket:cleanup
     (lambda ()
