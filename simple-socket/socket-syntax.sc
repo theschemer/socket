@@ -18,7 +18,7 @@
         (let ([socket-fd (check 'socket (socket family type IPPROTO_IP))])
           (list socket-fd family "127.0.0.1" port))]
       [(_ family type port addr)
-        (let ([socket-fd (chekc 'socket (socket family type IPPROTO_IP))])
+        (let ([socket-fd (check 'socket (socket family type IPPROTO_IP))])
           (list socket-fd family addr port))]))
   
   (define-syntax socket:bind
