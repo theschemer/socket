@@ -1,4 +1,4 @@
-(library (simple-socket socket-ffi) 
+(library (socket ffi) 
   (export
     AF_UNSPEC
     AF_UNIX
@@ -24,36 +24,38 @@
     IPPROTO_IP
     IPPROTO_TCP
     IPPROTO_UDP
+    SOCKET_ERROR
 
+    wsadata
+    
     c-read
     c-write
-    c-error
-    close
+    c-recv
+    c-send
     socket
     bind
     connect
     listen
     accept
     shutdown
-    cleanup
+    close
+    closesocket
+    wsastartup
+    wsacleanup
+    makeword
     check)
-  (import (scheme))
+  (import
+    (scheme)
+    (libc libc))
 
   (define lib-name
     (case (machine-type)
-      ((arm32le) "libsocket.so")
-      ((a6nt i3nt ta6nt ti3nt) "libsocket.dll")
-      ((a6osx i3osx ta6osx ti3osx)  "libsocket.so")
-      ((a6le i3le ta6le ti3le) "libsocket.so")
-      (else "libsocket.so")))
+      ((i3nt ti3nt a6nt ta6nt) "ws2_32.dll")
+      ((a6osx i3osx ta6osx ti3osx)  "libc.dylib")
+      ((a6le i3le ta6le ti3le) "libc.so.6")
+      (else "libc.so")))
 
-  (define (lib-path lib-name)
-    (cond
-      [(file-exists? (format "./simple-socket/~a" lib-name)) (format "./simple-socket/~a" lib-name)]
-      [(file-exists? (format "./lib/simple-socket/~a" lib-name)) (format "./lib/simple-socket/~a" lib-name)]
-      [else lib-name]))
-
-  (define lib (load-shared-object (lib-path lib-name)))
+  (define lib (load-shared-object lib-name))
 
   (define-syntax def-function
     (syntax-rules ()
@@ -92,45 +94,69 @@
   (define IPPROTO_TCP 6)
   (define IPPROTO_UDP 22)
 
+  (define SOCKET_ERROR -1)
+
+
+  (define-ftype wsadata
+    (struct
+      (wVersion unsigned-short)
+      (wHighVersion unsigned-short)
+      (szDescription (array 257 char))
+      (szSystemStatus (array 129 char))
+      (iMaxSockets unsigned-short)
+      (iMaxUdpDg unsigned-short)
+      (lpVendorInfo (* char))))
+
 
   (def-function socket
-    "_socket" (int int int) int)
+    "socket" (int int int) int)
   
   (def-function bind
-    "_bind" (int int string int) int)
+    "bind" (int (* sockaddr-in) int) int)
 
   (def-function c-read
-    "_read" (int u8* size_t size_t) ssize_t)
+    "read" (int u8* int) int)
 
   (def-function c-write
-    "_write" (int u8* ssize_t ssize_t) ssize_t)
-    
+    "write" (int u8* int) int)
+
+  (def-function c-recv
+    "recv" (int u8* int int) int)
+
+  (def-function c-send
+    "send" (int u8* int int) int)  
+
   (def-function listen
-    "_listen" (int int) int)
+    "listen" (int int) int)
 
   (def-function accept
-    "_accept" (int) int)
+    "accept" (int (* sockaddr-in) (* socklen-t)) int)
 
   (def-function connect
-    "_connect" (int int string int) int)
-  
-  (def-function close
-    "_close" (int) int)
+    "connect" (int (* sockaddr-in) int) int)
 
   (def-function shutdown
-    "_shutdown" (int int) int)
+    "shutdown" (int int) int)
+
+  (def-function close
+    "close" (int) int)
+
+  (def-function closesocket
+    "closesocket" (int) int)
   
-  (def-function cleanup
-    "_cleanup" () int)
-  
-  (def-function c-error
-    "get_error" () string)
+  (def-function wsastartup
+    "WSAStartup" (unsigned-short (* wsadata)) int)
+
+  (def-function wsacleanup
+    "WSACleanup" () int)
+
+  (define makeword
+    (lambda (low high)
+      (bitwise-ior low (bitwise-arithmetic-shift-left high 8))))
   
   (define check
-    ; signal an error if status x is negative, using c-error to
-    ; obtain the operating-system's error message
     (lambda (who x)
       (if (< x 0)
-          (error who (c-error))
-          x)))
+        (error who (format "return ~a" x))
+          x))) 
 )

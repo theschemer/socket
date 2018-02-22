@@ -1,4 +1,4 @@
-(library (simple-socket socket-syntax) 
+(library (socket syntax) 
   (export
     socket:socket
     socket:bind
@@ -10,38 +10,53 @@
     socket:close
     socket:shutdown
     socket:cleanup)
- (import (scheme) (simple-socket socket-ffi))
+  (import 
+    (scheme)
+    (libc libc)
+    (socket ffi))
+
+  (define os
+    (let ([type (machine-type)])
+      (case type
+        ((i3nt ti3nt a6nt ta6nt) "nt")
+        ((a6osx i3osx ta6osx ti3osx)  "osx")
+        ((a6le i3le ta6le ti3le) "le")
+        (else (symbol->string type)))))
 
   (define-syntax socket:socket
     (syntax-rules ()
-      [(_ family type port)
-        (let ([socket-fd (check 'socket (socket family type IPPROTO_IP))])
-          (list socket-fd family "127.0.0.1" port))]
-      [(_ family type port addr)
-        (let ([socket-fd (check 'socket (socket family type IPPROTO_IP))])
-          (list socket-fd family addr port))]))
+      [(_ family type)
+        (socket:socket family type IPPROTO_IP)]
+      [(_ family type protocol)
+        (check 'socket (socket family type protocol))]))
   
   (define-syntax socket:bind
     (syntax-rules ()
-      [(_ socket)
-        (check 'bind (apply bind socket))]))
+      [(_ socket addr)
+        (socket:bind socket addr (ftype-sizeof sockaddr-in))]
+      [(_ socket addr size)
+        (check 'bind (bind socket addr size))]))
   
   (define-syntax socket:connect
     (syntax-rules ()
-      [(_ socket)
-        (check 'connect (apply connect socket))]))
+      [(_ socket addr)
+        (socket:connect socket addr (ftype-sizeof sockaddr-in))]
+      [(_ socket addr size)
+        (check 'connect (bind socket addr size))]))
 
   (define-syntax socket:listen
     (syntax-rules ()
       [(_ socket)
-        (check 'listen (listen (car socket) 10))]
+        (check 'listen (listen socket 10))]
       [(_ socket back-log)
-        (check 'listen (listen (car socket) back-log))]))
+        (check 'listen (listen socket back-log))]))
 
   (define-syntax socket:accept
     (syntax-rules ()
       [(_ socket)
-        (cons (check 'accept (accept (car socket))) (cdr socket))]))
+        (check 'accept (accept (car socket))) (cdr socket))]))
+
+       
 
   (define socket:write
     (lambda (socket msg)

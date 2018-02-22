@@ -1,4 +1,4 @@
-(library (simple-socket socket)
+(library (socket socket)
   (export
     AF_UNSPEC
     AF_UNIX
@@ -24,17 +24,23 @@
     IPPROTO_IP
     IPPROTO_TCP
     IPPROTO_UDP
+    SOCKET_ERROR
+    wsadata
     c-read
     c-write
-    c-error
-    close
+    c-recv
+    c-send
     socket
     bind
     connect
     listen
     accept
     shutdown
-    cleanup
+    close
+    closesocket
+    wsastartup
+    wsacleanup
+    makeword
     check
 
     socket:socket
@@ -49,6 +55,6 @@
     socket:cleanup)
   (import 
     (scheme)
-    (simple-socket socket-ffi)
-    (simple-socket socket-syntax))
+    (socket ffi)
+    (socket syntax))
 )
