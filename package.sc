@@ -2,7 +2,7 @@
 ("version" . "0.1.0")
 ("description" . "a simple socket library for chez scheme")
 ("keywords")
-("author"
+("author" 
     ("ch"))
 ("license" . "mit")
 ("private" . #f)

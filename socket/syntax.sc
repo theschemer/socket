@@ -86,9 +86,9 @@
 
   (define socket:write
     (lambda (socket msg)
-      (let ([bv (string->utf8 msg)]
-            [s-write (if nt? c-send c-write)])
-        (check 's-write (s-write socket bv (bytevector-length bv))))))
+      (let* ([bv (string->utf8 msg)]
+             [len (bytevector-length bv)])
+        (check 's-write (if nt? (c-send socket bv len 0) (c-write socket bv len))))))
 
   (define socket:read 
     (case-lambda
@@ -98,8 +98,8 @@
         (socket:read socket len ""))
       ([socket len msg]
         (let* ([buff (make-bytevector len)]
-               [s-read (if nt? c-recv c-read)]
-               [n (check 's-read (s-read socket buff (bytevector-length buff)))]
+               [len (bytevector-length buff)]
+               [n (check 's-read (if nt? (c-recv socket buff len 0) (c-read socket buff len)))]
                [bv (make-bytevector n)])
           (bytevector-copy! buff 0 bv 0 n)
           (cond
