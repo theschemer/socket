@@ -16,9 +16,7 @@
 (ftype-set! sockaddr-in (sin-addr s-addr) serv-addr (c-inet-addr ip))
 (ftype-set! sockaddr-in (sin-port) serv-addr (c-htons port))
 
-; (printf "~a\n" (ftype-pointer->sexpr serv-addr))
-
-; (printf "~a\n" (bind socket-fd serv-addr (ftype-sizeof sockaddr-in)))
+(bind socket-fd serv-addr (ftype-sizeof sockaddr-in))
 
 (listen socket-fd 10)
 
@@ -30,12 +28,11 @@
       (ftype-sizeof sockaddr-in))))
 
 (define clnt-addr-size 
-  (make-ftype-pointer int
+  (make-ftype-pointer socklen-t
     (foreign-alloc
-      (ftype-sizeof int))))
+      (ftype-sizeof socklen-t))))
 
 (ftype-set! socklen-t () clnt-addr-size (ftype-sizeof sockaddr-in))
-
 
 (define client-fd (accept socket-fd clnt-addr clnt-addr-size))
 

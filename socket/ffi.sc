@@ -114,6 +114,15 @@
   (def-function bind
     "bind" (int (* sockaddr-in) int) int)
 
+  (def-function listen
+    "listen" (int int) int)
+
+  (def-function accept
+    "accept" (int (* sockaddr-in) (* socklen-t)) int)
+
+  (def-function connect
+    "connect" (int (* sockaddr-in) int) int)
+
   (def-function c-read
     "read" (int u8* int) int)
 
@@ -124,17 +133,8 @@
     "recv" (int u8* int int) int)
 
   (def-function c-send
-    "send" (int u8* int int) int)  
-
-  (def-function listen
-    "listen" (int int) int)
-
-  (def-function accept
-    "accept" (int (* sockaddr-in) (* socklen-t)) int)
-
-  (def-function connect
-    "connect" (int (* sockaddr-in) int) int)
-
+    "send" (int u8* int int) int)
+    
   (def-function shutdown
     "shutdown" (int int) int)
 

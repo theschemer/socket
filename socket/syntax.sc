@@ -23,45 +23,72 @@
         ((a6le i3le ta6le ti3le) "le")
         (else (symbol->string type)))))
 
+  (define nt? (string=? os "nt"))
+  
   (define-syntax socket:socket
     (syntax-rules ()
       [(_ family type)
         (socket:socket family type IPPROTO_IP)]
       [(_ family type protocol)
-        (check 'socket (socket family type protocol))]))
+        (begin
+          (when nt?
+            (let ([was (make-ftype-pointer wsadata
+                          (foreign-alloc (ftype-sizeof wsadata)))])
+              (wsastartup (makeword 2 2) was)))
+          (check 'socket (socket family type protocol)))]))
   
   (define-syntax socket:bind
     (syntax-rules ()
-      [(_ socket addr)
-        (socket:bind socket addr (ftype-sizeof sockaddr-in))]
+      [(_ socket family ip port)
+        (let* ([addr-size (ftype-sizeof sockaddr-in)]
+               [serv-addr (make-ftype-pointer sockaddr-in
+                            (foreign-alloc addr-size))])
+          (ftype-set! sockaddr-in (sin-family) serv-addr family)
+          (ftype-set! sockaddr-in (sin-addr s-addr) serv-addr (c-inet-addr ip))
+          (ftype-set! sockaddr-in (sin-port) serv-addr (c-htons port))
+          (socket:bind socket serv-addr addr-size))]
       [(_ socket addr size)
         (check 'bind (bind socket addr size))]))
   
   (define-syntax socket:connect
     (syntax-rules ()
-      [(_ socket addr)
-        (socket:connect socket addr (ftype-sizeof sockaddr-in))]
+      [(_ socket family ip port)
+        (let* ([addr-size (ftype-sizeof sockaddr-in)]
+               [serv-addr (make-ftype-pointer sockaddr-in
+                            (foreign-alloc addr-size))])
+          (ftype-set! sockaddr-in (sin-family) serv-addr family)
+          (ftype-set! sockaddr-in (sin-addr s-addr) serv-addr (c-inet-addr ip))
+          (ftype-set! sockaddr-in (sin-port) serv-addr (c-htons port))
+          (socket:connect socket serv-addr addr-size))]
       [(_ socket addr size)
-        (check 'connect (bind socket addr size))]))
+        (check 'connect (connect socket addr size))]))
 
   (define-syntax socket:listen
     (syntax-rules ()
       [(_ socket)
-        (check 'listen (listen socket 10))]
+        (socket:listen socket 10)]
       [(_ socket back-log)
         (check 'listen (listen socket back-log))]))
 
   (define-syntax socket:accept
     (syntax-rules ()
       [(_ socket)
-        (check 'accept (accept (car socket))) (cdr socket))]))
-
-       
+        (let* ([addr-size (ftype-sizeof sockaddr-in)]
+               [clnt-addr (make-ftype-pointer sockaddr-in
+                            (foreign-alloc addr-size))]
+               [clnt-addr-size (make-ftype-pointer socklen-t
+                            (foreign-alloc
+                              (ftype-sizeof socklen-t)))])
+        (ftype-set! socklen-t () clnt-addr-size addr-size)
+        (socket:accept socket clnt-addr clnt-addr-size))]
+      [(_ socket addr socklen)
+        (check 'accept (accept socket addr socklen))]))
 
   (define socket:write
     (lambda (socket msg)
-      (let ([bv (string->utf8 msg)])
-        (check 'c-write (c-write (car socket) bv 0 (bytevector-length bv))))))
+      (let ([bv (string->utf8 msg)]
+            [s-write (if nt? c-send c-write)])
+        (check 's-write (s-write socket bv (bytevector-length bv))))))
 
   (define socket:read 
     (case-lambda
@@ -71,23 +98,27 @@
         (socket:read socket len ""))
       ([socket len msg]
         (let* ([buff (make-bytevector len)]
-               [n (check 'c-read (c-read (car socket) buff 0 (bytevector-length buff)))]
+               [s-read (if nt? c-recv c-read)]
+               [n (check 's-read (s-read socket buff (bytevector-length buff)))]
                [bv (make-bytevector n)])
           (bytevector-copy! buff 0 bv 0 n)
           (cond
             ([= n 0] msg)
             ([< n len] (string-append msg (utf8->string bv)))
             (else (socket:read socket len (string-append msg (utf8->string bv)))))))))
- 
-  (define socket:close
-    (lambda (socket)
-      (check 'close (close (car socket)))))
-  
-  (define socket:shutdown
-    (lambda (socket howto)
-      (check 'shutdown (shutdown (car socket) howto))))
 
-  (define socket:cleanup
-    (lambda ()
-      (check 'cleanup (cleanup))))
+  (define-syntax socket:shutdown
+    (syntax-rules ()
+      [(_ socket howto)
+        (check 'shutdown (shutdown socket howto))]))
+
+  (define-syntax socket:close
+    (syntax-rules ()
+      [(_ socket)
+        (check 'close ((if nt? closesocket close) socket))]))
+
+  (define-syntax socket:cleanup
+    (syntax-rules ()
+      [(_)
+        (check 'cleanup (if nt? (wsacleanup) 0))]))
 )
