@@ -1,4 +1,4 @@
-(("name" . "simple-socket")
+(("name" . "socket")
 ("version" . "0.1.0")
 ("description" . "a simple socket library for chez scheme")
 ("keywords")
