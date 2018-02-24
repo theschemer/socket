@@ -11,7 +11,7 @@
 (printf "listen on ~a\n" port)
 
 (define client-fd (socket:accept socket-fd))
-(socket:write client-fd "Hello World!")
+(socket:write client-fd (string->utf8 "Hello World!"))
 
 (socket:close client-fd)
 (socket:close socket-fd)

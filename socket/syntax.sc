@@ -85,9 +85,8 @@
         (check 'accept (accept socket addr socklen))]))
 
   (define socket:write
-    (lambda (socket msg)
-      (let* ([bv (string->utf8 msg)]
-             [len (bytevector-length bv)])
+    (lambda (socket bv)
+      (let* ([len (bytevector-length bv)])
         (check 's-write (if nt? (c-send socket bv len 0) (c-write socket bv len))))))
 
   (define socket:read 
@@ -95,17 +94,17 @@
       ([socket]
         (socket:read socket 1024))
       ([socket len]
-        (socket:read socket len ""))
-      ([socket len msg]
+        (socket:read socket len (make-bytevector 0)))
+      ([socket len rbv]
         (let* ([buff (make-bytevector len)]
                [len (bytevector-length buff)]
                [n (check 's-read (if nt? (c-recv socket buff len 0) (c-read socket buff len)))]
                [bv (make-bytevector n)])
           (bytevector-copy! buff 0 bv 0 n)
           (cond
-            ([= n 0] msg)
-            ([< n len] (string-append msg (utf8->string bv)))
-            (else (socket:read socket len (string-append msg (utf8->string bv)))))))))
+            ([= n 0] rbv)
+            ([< n len] (bytevector-append rbv bv))
+            (else (socket:read socket len (bytevector-append rbv bv))))))))
 
   (define-syntax socket:shutdown
     (syntax-rules ()
@@ -121,4 +120,13 @@
     (syntax-rules ()
       [(_)
         (check 'cleanup (if nt? (wsacleanup) 0))]))
+
+  (define bytevector-append
+    (lambda (bv1 bv2)
+      (let* ([len1 (bytevector-length bv1)]
+             [len2 (bytevector-length bv2)]
+             [bv (make-bytevector (+ len1 len2))])
+        (bytevector-copy! bv1 0 bv 0 len1)
+        (bytevector-copy! bv2 0 bv len1 len2)
+        bv)))
 )

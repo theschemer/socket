@@ -8,7 +8,7 @@
 (socket:connect socket-fd family ip port)
 (define buff (socket:read socket-fd))
 
-(printf "client: ~a\n" buff)
+(printf "client: ~a\n" (utf8->string buff))
 
 (socket:close socket-fd)
 (socket:cleanup)
