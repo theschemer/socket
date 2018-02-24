@@ -11,5 +11,5 @@
     ("repl" . "scheme")
     ("packing" . "raven pack socket"))
 ("dependencies" 
-    ("libc" . "0.1.2"))
+    ("libc" . "0.1.1"))
 ("devDependencies"))
