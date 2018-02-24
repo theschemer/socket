@@ -1,2 +1,2 @@
-# simple-socket
+# socket
 simple socket implementation
